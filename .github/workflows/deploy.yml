@@ -1,0 +1,40 @@
+name: CI/CD Pipeline - Auto Deploy Local Docker
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build & Re-deploy Docker
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify Docker Status
+        shell: powershell
+        run: |
+          Write-Host ">>> Kiểm tra Docker..."
+          docker --version
+          docker compose version
+
+      - name: Rebuild & Restart Docker Services
+        shell: powershell
+        run: |
+          Write-Host ">>> Đang build lại các service có thay đổi và khởi động lại container..."
+          docker compose up -d --build
+
+      - name: Clean Dangling Docker Images
+        shell: powershell
+        run: |
+          Write-Host ">>> Dọn dẹp images tạm..."
+          docker image prune -f
+
+      - name: Health Check & Verification
+        shell: powershell
+        run: |
+          Write-Host ">>> Danh sách các container đang chạy:"
+          docker ps
