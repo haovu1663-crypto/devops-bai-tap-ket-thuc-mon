@@ -17,8 +17,16 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<List<Product>> getAllProducts(@RequestParam(required = false) String name) {
+        if (name != null && !name.trim().isEmpty()) {
+            return ResponseEntity.ok(productService.searchProductsByName(name.trim()));
+        }
         return ResponseEntity.ok(productService.getAllProducts());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> searchProductsByName(@RequestParam(required = false, defaultValue = "") String name) {
+        return ResponseEntity.ok(productService.searchProductsByName(name.trim()));
     }
 
     @GetMapping("/{id}")

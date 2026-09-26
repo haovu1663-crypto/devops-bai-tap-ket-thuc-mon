@@ -34,6 +34,11 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    public List<Product> searchProductsByName(String name) {
+        log.info("Searching products with keyword: {}", name);
+        return productRepository.findByNameContainingIgnoreCase(name);
+    }
+
     /**
      * Xử lý sự kiện order-created từ Kafka:
      * - Kiểm tra sản phẩm có tồn tại không
