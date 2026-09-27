@@ -36,6 +36,16 @@ public class ProductController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/by-quantity")
+    public ResponseEntity<List<Product>> getProductsByQuantity(
+            @RequestParam Integer quantity,
+            @RequestParam(required = false, defaultValue = "false") Boolean min) {
+        if (min) {
+            return ResponseEntity.ok(productService.getProductsByMinQuantity(quantity));
+        }
+        return ResponseEntity.ok(productService.getProductsByQuantity(quantity));
+    }
+
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         Product created = productService.createProduct(product);

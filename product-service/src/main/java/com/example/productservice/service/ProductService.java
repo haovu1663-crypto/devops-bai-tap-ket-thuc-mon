@@ -39,6 +39,16 @@ public class ProductService {
         return productRepository.findByNameContainingIgnoreCase(name);
     }
 
+    public List<Product> getProductsByQuantity(Integer quantity) {
+        log.info("Getting products with quantity: {}", quantity);
+        return productRepository.findByQuantity(quantity);
+    }
+
+    public List<Product> getProductsByMinQuantity(Integer minQuantity) {
+        log.info("Getting products with quantity >= {}", minQuantity);
+        return productRepository.findByQuantityGreaterThanEqual(minQuantity);
+    }
+
     /**
      * Xử lý sự kiện order-created từ Kafka:
      * - Kiểm tra sản phẩm có tồn tại không
