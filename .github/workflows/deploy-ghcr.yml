@@ -22,6 +22,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -34,6 +37,7 @@ jobs:
         with:
           context: ./api-gateway
           push: true
+          provenance: false
           tags: |
             ghcr.io/${{ env.IMAGE_OWNER }}/api-gateway:latest
             ghcr.io/${{ env.IMAGE_OWNER }}/api-gateway:${{ github.sha }}
@@ -43,6 +47,7 @@ jobs:
         with:
           context: ./product-service
           push: true
+          provenance: false
           tags: |
             ghcr.io/${{ env.IMAGE_OWNER }}/product-service:latest
             ghcr.io/${{ env.IMAGE_OWNER }}/product-service:${{ github.sha }}
@@ -52,6 +57,7 @@ jobs:
         with:
           context: ./order-service
           push: true
+          provenance: false
           tags: |
             ghcr.io/${{ env.IMAGE_OWNER }}/order-service:latest
             ghcr.io/${{ env.IMAGE_OWNER }}/order-service:${{ github.sha }}
