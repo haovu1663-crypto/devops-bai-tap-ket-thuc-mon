@@ -9,6 +9,7 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_JVM_PERFORMANCE_OPTS: "-Xmx128m -Xms64m"
     ports:
       - "2181:2181"
     networks:
@@ -29,6 +30,8 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_HEAP_OPTS: "-Xmx256m -Xms128m"
+      KAFKA_JVM_PERFORMANCE_OPTS: "-XX:+UseSerialGC"
     networks:
       - microservice-network
 
@@ -72,6 +75,8 @@ services:
     container_name: api-gateway
     ports:
       - "8080:8080"
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xmx180m -Xms90m -XX:+UseSerialGC"
     depends_on:
       - product-service
       - order-service
@@ -94,6 +99,7 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      JAVA_TOOL_OPTIONS: "-Xmx180m -Xms90m -XX:+UseSerialGC"
     depends_on:
       - product-db
       - kafka
@@ -114,6 +120,7 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      JAVA_TOOL_OPTIONS: "-Xmx180m -Xms90m -XX:+UseSerialGC"
     depends_on:
       - order-db
       - kafka
