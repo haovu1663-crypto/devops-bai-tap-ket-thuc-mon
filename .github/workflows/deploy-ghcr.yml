@@ -1,0 +1,101 @@
+name: CI/CD Pipeline - Build & Deploy via GHCR
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_OWNER: ${{ github.repository_owner }}
+
+jobs:
+  # ==================== JOB 1: Build & Push lên GHCR ====================
+  build-and-push:
+    name: 🔨 Build & Push Images to GHCR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push API Gateway
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api-gateway
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_OWNER }}/api-gateway:latest
+            ghcr.io/${{ env.IMAGE_OWNER }}/api-gateway:${{ github.sha }}
+
+      - name: Build & Push Product Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./product-service
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_OWNER }}/product-service:latest
+            ghcr.io/${{ env.IMAGE_OWNER }}/product-service:${{ github.sha }}
+
+      - name: Build & Push Order Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./order-service
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_OWNER }}/order-service:latest
+            ghcr.io/${{ env.IMAGE_OWNER }}/order-service:${{ github.sha }}
+
+  # ==================== JOB 2: Deploy trên Server ====================
+  deploy:
+    name: 🚀 Deploy to Server
+    runs-on: [self-hosted, linux]
+    needs: build-and-push
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        run: |
+          echo ">>> Đăng nhập vào GHCR..."
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Pull Latest Images from GHCR
+        run: |
+          echo ">>> Đang kéo images mới nhất từ GHCR..."
+          docker pull ghcr.io/${{ env.IMAGE_OWNER }}/api-gateway:latest
+          docker pull ghcr.io/${{ env.IMAGE_OWNER }}/product-service:latest
+          docker pull ghcr.io/${{ env.IMAGE_OWNER }}/order-service:latest
+
+      - name: Deploy with Docker Compose
+        run: |
+          echo ">>> Đang triển khai các service..."
+          docker compose up -d
+
+      - name: Clean Old Images
+        run: |
+          echo ">>> Dọn dẹp images cũ..."
+          docker image prune -f
+
+      - name: Health Check & Verification
+        run: |
+          echo ">>> Danh sách các container đang chạy:"
+          docker ps
+          echo ""
+          echo ">>> Images đang sử dụng:"
+          docker images | grep ghcr
+

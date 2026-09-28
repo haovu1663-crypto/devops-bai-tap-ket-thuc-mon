@@ -1,8 +1,6 @@
-name: CI/CD Pipeline - Auto Deploy Local Docker
+name: CI/CD Pipeline - Auto Deploy Local Docker (Manual)
 
 on:
-  push:
-    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:

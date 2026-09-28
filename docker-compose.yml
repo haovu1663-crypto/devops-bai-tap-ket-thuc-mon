@@ -1,4 +1,4 @@
-version: '3.8'
+name: devops-bai-tap-ket-thuc-mon
 
 services:
   # ===================== INFRASTRUCTURE =====================
@@ -65,6 +65,7 @@ services:
   # ===================== API GATEWAY =====================
 
   api-gateway:
+    image: ghcr.io/haovu1663-crypto/api-gateway:latest
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
@@ -81,6 +82,7 @@ services:
   # ===================== MICROSERVICES =====================
 
   product-service:
+    image: ghcr.io/haovu1663-crypto/product-service:latest
     build:
       context: ./product-service
       dockerfile: Dockerfile
@@ -100,6 +102,7 @@ services:
     restart: on-failure
 
   order-service:
+    image: ghcr.io/haovu1663-crypto/order-service:latest
     build:
       context: ./order-service
       dockerfile: Dockerfile
